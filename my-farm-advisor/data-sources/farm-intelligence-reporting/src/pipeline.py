@@ -35,6 +35,7 @@ STEP_COUNTY_GDD_BUILD = "county_gdd_build"
 STEP_CORN_RM_BUILD = "corn_rm_build"
 STEP_SOYBEAN_MG_BUILD = "soybean_mg_build"
 STEP_MATURITY_MAP_RENDER = "maturity_map_render"
+STEP_GROWER_WEB_MAP_RENDER = "grower_web_map_render"
 
 STEP_ORDER = [
     STEP_FIELDS_NORMALIZE,
