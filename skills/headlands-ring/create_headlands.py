@@ -52,8 +52,34 @@ def generate_headlands(gdf: gpd.GeoDataFrame, distance: float) -> gpd.GeoDataFra
     """
     result = gdf.copy()
     result["geometry"] = result.geometry.buffer(-distance)
+    print("Inner buffer created")
+    print(result.head())
     result = result[~result.geometry.is_empty]
+    print("After removing empty geometries:")
+    print(result.head())
+    if not result.empty:
+        print(f"  Buffered area: {result.area.iloc[0]:.2f} m²")
     return result
+
+
+def generate_headlands_ring(original_gdf: gpd.GeoDataFrame, inner_buffer_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """
+    Generate the headlands ring by computing the difference between
+    the original field and the inner buffer.
+
+    Args:
+        original_gdf: Original field boundary GeoDataFrame.
+        inner_buffer_gdf: Inner-buffered (headland) GeoDataFrame.
+
+    Returns:
+        GeoDataFrame representing the headland strip.
+    """
+    ring = original_gdf.copy()
+    ring["geometry"] = original_gdf.geometry.difference(inner_buffer_gdf.geometry)
+    print("Headlands ring created")
+    print(ring.head())
+    ring = ring[~ring.geometry.is_empty]
+    return ring
 
 
 def generate_ring(gdf: gpd.GeoDataFrame, distance: float) -> gpd.GeoDataFrame:
@@ -85,6 +111,7 @@ def process_field(
     output_dir: Path,
     headland_distance: float,
     ring_distance: float,
+    generate_headlands_ring_flag: bool = True,
 ) -> None:
     """
     Process a single field boundary GeoJSON.
@@ -111,6 +138,7 @@ def process_field(
     print(f"  Original area: {gdf_metric['acres'].iloc[0]} acres")
 
     # Headlands (inner buffer)
+    headlands = None
     if headland_distance > 0:
         headlands = generate_headlands(gdf_metric, headland_distance)
         headlands = add_area_columns(headlands)
@@ -118,10 +146,22 @@ def process_field(
             f"  Headland area: {headlands['acres'].iloc[0]} acres "
             f"(lost {gdf_metric['acres'].iloc[0] - headlands['acres'].iloc[0]:.2f} acres)"
         )
-        headlands = headlands.to_crs(gdf.crs)  # Back to original CRS
+        headlands_crs = headlands.to_crs(gdf.crs)  # Back to original CRS
         stem = input_path.stem
         out_path = output_dir / f"{stem}_headlands.geojson"
-        save_geojson(headlands, out_path)
+        save_geojson(headlands_crs, out_path)
+
+        # Headlands ring (difference: original - inner buffer)
+        if generate_headlands_ring_flag:
+            headlands_ring = generate_headlands_ring(gdf_metric, headlands)
+            headlands_ring = add_area_columns(headlands_ring)
+            print(
+                f"  Headlands ring area: {headlands_ring['acres'].iloc[0]} acres "
+                f"(strip width: {headland_distance}m)"
+            )
+            headlands_ring = headlands_ring.to_crs(gdf.crs)
+            out_path = output_dir / f"{stem}_headlands_ring.geojson"
+            save_geojson(headlands_ring, out_path)
 
     # Outer ring (positive buffer)
     if ring_distance > 0:
@@ -165,6 +205,12 @@ def main() -> int:
         default=0.0,
         help="Outer buffer distance in metres for rings (default: 0, disabled).",
     )
+    parser.add_argument(
+        "--headlands-ring",
+        action="store_true",
+        default=True,
+        help="Generate headlands ring (difference between original and inner buffer) (default: True).",
+    )
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -176,6 +222,7 @@ def main() -> int:
                 args.output_dir,
                 args.headland_distance,
                 args.ring_distance,
+                args.headlands_ring,
             )
         except Exception as exc:
             print(f"  Error processing {input_path}: {exc}", file=sys.stderr)
