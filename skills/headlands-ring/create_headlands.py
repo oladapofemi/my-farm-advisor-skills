@@ -163,6 +163,7 @@ def process_field(
                 f"(strip width: {headland_distance}m)"
             )
             headlands_ring = headlands_ring.to_crs(gdf.crs)
+            print(f"  Headlands ring CRS: {headlands_ring.crs}")
             out_path = output_dir / f"{stem}_headlands_ring.geojson"
             save_geojson(headlands_ring, out_path)
 
