@@ -79,6 +79,9 @@ def generate_headlands_ring(original_gdf: gpd.GeoDataFrame, inner_buffer_gdf: gp
     print("Headlands ring created")
     print(ring.head())
     ring = ring[~ring.geometry.is_empty]
+    ring["meters_squared"] = ring.area.round(2)
+    ring["acres"] = (ring["meters_squared"] * 0.000247105).round(2)
+    print(ring[["meters_squared", "acres"]])
     return ring
 
 
