@@ -1,0 +1,14 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# Generated outputs
+output/
+*.geojson
+*.png
+*.csv
+
+# IDE
+.vscode/
+.idea/
