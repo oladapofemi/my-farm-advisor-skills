@@ -179,6 +179,9 @@ def process_field(
             print(f"  Headlands ring CRS: {headlands_ring.crs}")
             out_path = output_dir / f"{stem}_headlands_ring.geojson"
             save_geojson(headlands_ring, out_path)
+            out_path_gpkg = output_dir / f"{stem}_headlands_ring.gpkg"
+            save_gpkg(headlands_ring, out_path_gpkg)
+            print("Headlands ring exported")
 
     # Outer ring (positive buffer)
     if ring_distance > 0:
