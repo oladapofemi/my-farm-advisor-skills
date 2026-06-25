@@ -38,6 +38,13 @@ def save_geojson(gdf: gpd.GeoDataFrame, path: Path) -> None:
     print(f"  Saved: {path}")
 
 
+def save_gpkg(gdf: gpd.GeoDataFrame, path: Path) -> None:
+    """Save a GeoDataFrame to a GeoPackage file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    gdf.to_file(path, driver="GPKG")
+    print(f"  Saved: {path}")
+
+
 def generate_headlands(gdf: gpd.GeoDataFrame, distance: float) -> gpd.GeoDataFrame:
     """
     Generate headlands by buffering inward (negative buffer).
@@ -127,6 +134,12 @@ def process_field(
     if gdf.crs is None:
         print("  Warning: No CRS found. Assuming EPSG:4326.")
         gdf.set_crs(epsg=4326, inplace=True)
+
+    # Export original boundary as GeoPackage
+    stem = input_path.stem
+    original_gpkg_path = output_dir / f"{stem}.gpkg"
+    save_gpkg(gdf, original_gpkg_path)
+    print("Field boundary exported")
 
     # Reproject to a metric CRS for accurate buffering if necessary.
     if gdf.crs is None or gdf.crs.is_geographic:
