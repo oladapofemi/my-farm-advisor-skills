@@ -28,5 +28,4 @@ __pycache__/
 Thumbs.db
 
 # Generated reports and data
-eda_report.html
 *.gpkg
