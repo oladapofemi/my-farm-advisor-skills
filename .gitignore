@@ -26,3 +26,7 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Generated reports and data
+eda_report.html
+*.gpkg
