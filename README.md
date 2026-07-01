@@ -240,3 +240,28 @@ my-farm-advisor-skills/
 | Change catalog structure | Root [`AGENTS.md`](AGENTS.md) and `scripts/validate.sh` | `bash -n scripts/validate.sh && ./scripts/validate.sh` |
 
 Keep edits focused, keep generated outputs out of Git, and route through the nearest `INDEX.md` before opening detailed workflow docs.
+## Assignment 2 – Custom EDA Subskill
+
+A custom field-level EDA subskill has been added under the My Farm Advisor skill area.
+
+**Skill location:** `skills/my-farm-advisor/eda/field-level-eda.md`
+
+**What it does:**  
+Produces repeatable static Python EDA outputs for a three-grower, 30-field dataset
+(Illinois, Iowa, Nebraska). It compares field boundaries, weather variables, and
+CDL/cropland data layer patterns at field, field-year, and across-grower levels.
+Outputs are PNG figures and CSV summaries saved to `eda_outputs/`.
+
+**Scripts:**  
+- `generate_data.py` – seeds runtime data under `~/my-farm-advisor-runtime`  
+- `eda_field_boundaries.py` – field boundary visualizations and geospatial map  
+- `eda_weather.py` – annual precipitation and GDD analysis  
+- `eda_cdl.py` – crop rotation and CDL dominance analysis  
+
+**Report:**  
+A one-time single-page HTML report (`eda_report.html`) summarises all subskill
+outputs for the Assignment 2 submission. The report is not part of the reusable
+subskill and is not committed with raw runtime data.
+
+> This note was added for Assignment 2 and does not alter the existing README content
+> for the Assignment 1 grower web-map subskill.
